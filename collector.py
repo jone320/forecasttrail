@@ -57,7 +57,7 @@ def payload():
   result=[]
   for key,(name,station,zone) in CITIES.items():
    row=c.execute('SELECT * FROM forecast WHERE city=? ORDER BY target_date DESC, collected_at DESC LIMIT 1',(key,)).fetchone()
-   history=c.execute('''SELECT f.*,c.high,c.observed_at,c.source FROM forecast f JOIN climate c ON f.city=c.city AND f.target_date=c.target_date WHERE f.city=? ORDER BY f.target_date DESC, f.collected_at ASC LIMIT 12''',(key,)).fetchall()
+   history=c.execute('''SELECT f.*,c.high,c.observed_at,c.source FROM forecast f JOIN climate c ON f.city=c.city AND f.target_date=c.target_date WHERE f.city=? AND f.target_date IN (SELECT DISTINCT target_date FROM forecast WHERE city=f.city ORDER BY target_date DESC LIMIT 12) ORDER BY f.target_date DESC, f.collected_at ASC''',(key,)).fetchall()
    # Only earliest independently recorded forecast for each target day in reviews.
    seen=set();reviews=[]
    for h in sorted(history,key=lambda x:(x['target_date'],x['collected_at'])):
