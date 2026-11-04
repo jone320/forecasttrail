@@ -69,18 +69,21 @@ export async function collect(env, now=new Date()) {
 export async function payload(env) {
   const cities=[];
   for(const [id,c] of Object.entries(CITIES)) {
-    const row=await env.DB.prepare('SELECT * FROM forecast WHERE city=? ORDER BY target_date DESC, collected_at DESC LIMIT 1').bind(id).first();
-    let forecast=null, runs=[];
-    if(row) {
-      const points=JSON.parse(row.points); forecast={date:row.target_date,model_run:row.model_run,collected_at:row.collected_at,points,sample_high:Math.max(...points.map(p=>p.temp_f))};
-      const all=await env.DB.prepare('SELECT * FROM forecast WHERE city=? AND target_date=? ORDER BY collected_at ASC').bind(id,row.target_date).all();
-      runs=all.results.map(r=>({model_run:r.model_run,collected_at:r.collected_at,sample_high:Math.max(...JSON.parse(r.points).map(p=>p.temp_f))}));
+    const data=await env.DB.prepare('SELECT * FROM forecast WHERE city=? AND target_date IN (SELECT DISTINCT target_date FROM forecast WHERE city=? ORDER BY target_date DESC LIMIT 5) ORDER BY target_date DESC, collected_at DESC').bind(id,id).all();
+    const grouped=new Map();
+    for(const r of data.results) {
+      const points=JSON.parse(r.points);
+      if(!grouped.has(r.target_date)) grouped.set(r.target_date,{forecast:{date:r.target_date,model_run:r.model_run,collected_at:r.collected_at,points,sample_high:Math.max(...points.map(p=>p.temp_f))},runs:[]});
+      grouped.get(r.target_date).runs.push({model_run:r.model_run,collected_at:r.collected_at,sample_high:Math.max(...points.map(p=>p.temp_f))});
     }
+    const forecast_days=[...grouped.values()];
+    for(const d of forecast_days) d.runs.reverse();
+    const forecast=forecast_days[0]?.forecast||null, runs=forecast_days[0]?.runs||[];
     const history=await env.DB.prepare('SELECT f.*,c.high,c.source FROM forecast f JOIN climate c ON f.city=c.city AND f.target_date=c.target_date WHERE f.city=? ORDER BY f.target_date DESC,f.collected_at ASC').bind(id).all();
     const seen=new Set(),reviews=[];
     for(const h of history.results) { if(seen.has(h.target_date)) continue; seen.add(h.target_date); if(reviews.length>=12)break;
       reviews.push({date:h.target_date,forecast_high:Math.max(...JSON.parse(h.points).map(p=>p.temp_f)),actual_high:h.high,collected_at:h.collected_at,model_run:h.model_run,actual_source:h.source}); }
-    cities.push({id,...c,forecast,runs,reviews});
+    cities.push({id,...c,forecast,runs,forecast_days,reviews});
   }
   const meta=await env.DB.prepare('SELECT key,value FROM meta').all();const map=Object.fromEntries(meta.results.map(r=>[r.key,r.value]));
   return {cities,status:{running:false,last_attempt:map.last_attempt||null,last_success:map.last_success||null,error:map.last_error||null},server_time:iso(new Date())};
