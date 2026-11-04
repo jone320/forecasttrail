@@ -1,7 +1,7 @@
 const CITIES = {
-  NYC: { name: 'New York', station: 'KNYC', timezone: 'America/New_York' },
-  MDW: { name: 'Chicago', station: 'KMDW', timezone: 'America/Chicago' },
-  LAX: { name: 'Los Angeles', station: 'KLAX', timezone: 'America/Los_Angeles' },
+  NYC: { name: 'New York', station: 'KNYC', network:'NY_ASOS', timezone: 'America/New_York' },
+  MDW: { name: 'Chicago', station: 'KMDW', network:'IL_ASOS', timezone: 'America/Chicago' },
+  LAX: { name: 'Los Angeles', station: 'KLAX', network:'CA_ASOS', timezone: 'America/Los_Angeles' },
 };
 const BASE = 'https://mesonet.agron.iastate.edu';
 const iso = d => d.toISOString().replace(/\.000Z$/, '+00:00').replace(/Z$/, '+00:00');
@@ -58,6 +58,18 @@ export async function collect(env, now=new Date()) {
       if(up.length) await env.DB.batch(up);
     } catch(e) { errors.push(`${id}: ${e.message}`); }
   }
+  // Observations are independent of the forecast; preserve the last good reading on failure.
+  const observationErrors=[];
+  for(const [id,c] of Object.entries(CITIES)) {
+    try {
+      const path=`/json/current.py?network=${c.network}&station=${id}`;
+      const o=await getJSON(path), reading=o.last_ob;
+      if(o.id!==id || o.network!==c.network || !reading || typeof reading['airtemp[F]']!=='number' || !Number.isFinite(reading['airtemp[F]']) || !reading.utc_valid || !Number.isFinite(Date.parse(reading.utc_valid)) || Date.parse(reading.utc_valid)>Date.now()+300000 || !String(reading.raw||'').startsWith(c.station+' ')) throw Error('Invalid station observation');
+      const value={temperature_f:reading['airtemp[F]'],observed_at:reading.utc_valid,recorded_at:iso(new Date()),source:BASE+path};
+      await env.DB.prepare('INSERT OR REPLACE INTO meta VALUES (?,?)').bind('observation_'+id,JSON.stringify(value)).run();
+    } catch(e) { observationErrors.push(`${id}: ${e.message}`); }
+  }
+  await env.DB.prepare('INSERT OR REPLACE INTO meta VALUES (?,?)').bind('observation_error',observationErrors.join('; ')).run();
   const done=iso(new Date());
   await env.DB.batch([
     env.DB.prepare('INSERT OR REPLACE INTO meta VALUES (?,?)').bind('last_success',done),
@@ -68,6 +80,7 @@ export async function collect(env, now=new Date()) {
 }
 export async function payload(env) {
   const cities=[];
+  const meta=await env.DB.prepare('SELECT key,value FROM meta').all();const map=Object.fromEntries(meta.results.map(r=>[r.key,r.value]));
   for(const [id,c] of Object.entries(CITIES)) {
     const data=await env.DB.prepare('SELECT * FROM forecast WHERE city=? AND target_date IN (SELECT DISTINCT target_date FROM forecast WHERE city=? ORDER BY target_date DESC LIMIT 5) ORDER BY target_date DESC, collected_at DESC').bind(id,id).all();
     const grouped=new Map();
@@ -83,10 +96,10 @@ export async function payload(env) {
     const seen=new Set(),reviews=[];
     for(const h of history.results) { if(seen.has(h.target_date)) continue; seen.add(h.target_date); if(reviews.length>=12)break;
       reviews.push({date:h.target_date,forecast_high:Math.max(...JSON.parse(h.points).map(p=>p.temp_f)),actual_high:h.high,collected_at:h.collected_at,model_run:h.model_run,actual_source:h.source}); }
-    cities.push({id,...c,forecast,runs,forecast_days,reviews});
+    let observation=null; try { observation=JSON.parse(map['observation_'+id]||'null'); } catch {}
+    cities.push({id,...c,forecast,runs,forecast_days,reviews,observation});
   }
-  const meta=await env.DB.prepare('SELECT key,value FROM meta').all();const map=Object.fromEntries(meta.results.map(r=>[r.key,r.value]));
-  return {cities,status:{running:false,last_attempt:map.last_attempt||null,last_success:map.last_success||null,error:map.last_error||null},server_time:iso(new Date())};
+  return {cities,status:{running:false,last_attempt:map.last_attempt||null,last_success:map.last_success||null,error:map.last_error||null,observation_error:map.observation_error||null},server_time:iso(new Date())};
 }
 export default {
  async scheduled(controller, env, ctx) { ctx.waitUntil(collect(env).catch(async e=>{await env.DB.prepare('INSERT OR REPLACE INTO meta VALUES (?,?)').bind('last_error',String(e.message).slice(0,300)).run(); throw e;})); },
