@@ -92,10 +92,10 @@ export async function payload(env) {
     const forecast_days=[...grouped.values()];
     for(const d of forecast_days) d.runs.reverse();
     const forecast=forecast_days[0]?.forecast||null, runs=forecast_days[0]?.runs||[];
-    const history=await env.DB.prepare('SELECT f.*,c.high,c.source FROM forecast f JOIN climate c ON f.city=c.city AND f.target_date=c.target_date WHERE f.city=? ORDER BY f.target_date DESC,f.collected_at ASC').bind(id).all();
-    const seen=new Set(),reviews=[];
-    for(const h of history.results) { if(seen.has(h.target_date)) continue; seen.add(h.target_date); if(reviews.length>=12)break;
-      reviews.push({date:h.target_date,forecast_high:Math.max(...JSON.parse(h.points).map(p=>p.temp_f)),actual_high:h.high,collected_at:h.collected_at,model_run:h.model_run,actual_source:h.source}); }
+    // IEM can return intraday CLI reports as well as complete reports. Do not
+    // present any as completed reviews until finality is verified per source.
+    // Keep collected climate and forecast rows intact for later verification.
+    const reviews=[];
     let observation=null; try { observation=JSON.parse(map['observation_'+id]||'null'); } catch {}
     cities.push({id,...c,forecast,runs,forecast_days,reviews,observation});
   }
