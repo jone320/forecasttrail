@@ -1,0 +1,45 @@
+name: Capture weather and publish
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17,47 * * * *'
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+concurrency:
+  group: forecasttrail-publish
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Capture weather
+        run: python refresh.py
+      - name: Mark scheduled version
+        run: |
+          python -c "from pathlib import Path; p=Path('docs/index.html'); s=p.read_text().replace('Preview: automated updates are being set up. Check the update time before using this snapshot.', 'Scheduled updates may be delayed. Check the last update time above.').replace('Preview snapshot: check the last successful update time above.', 'Scheduled updates may be delayed; check the last successful update time above.'); p.write_text(s)"
+      - name: Save recorded history
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add weather.sqlite3
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record weather observations'
+            git push
+          fi
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deployment
+        uses: actions/deploy-pages@v4
