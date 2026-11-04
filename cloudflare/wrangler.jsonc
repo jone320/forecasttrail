@@ -1,0 +1,10 @@
+{
+  "name": "forecasttrail-weather",
+  "main": "src/worker.mjs",
+  "compatibility_date": "2026-10-01",
+  "account_id": "3522735b058950e1dbe5cbe720cdfd9b",
+  "workers_dev": true,
+  "d1_databases": [{"binding":"DB","database_name":"forecasttrail-weather","database_id":"f6473d66-f996-404c-8251-473e3230a1e5"}],
+  "triggers": {"crons": ["*/30 * * * *"]},
+  "observability": {"enabled": true}
+}
