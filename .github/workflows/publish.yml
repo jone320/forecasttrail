@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '20,50 * * * *'
+    - cron: '19,49 * * * *'
 permissions:
   contents: write
   pages: write
