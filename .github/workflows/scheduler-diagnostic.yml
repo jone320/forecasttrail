@@ -1,0 +1,11 @@
+name: ForecastTrail scheduler diagnostic
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+permissions: {}
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Scheduled event reached GitHub Actions"
