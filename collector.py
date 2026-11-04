@@ -63,9 +63,11 @@ def payload():
    for h in sorted(history,key=lambda x:(x['target_date'],x['collected_at'])):
     if h['target_date'] in seen:continue
     seen.add(h['target_date']);pp=json.loads(h['points']);reviews.append({'date':h['target_date'],'forecast_high':max(x['temp_f'] for x in pp),'actual_high':h['high'],'collected_at':h['collected_at'],'model_run':h['model_run'],'actual_source':h['source']})
-   item={'id':key,'name':name,'station':station,'timezone':zone,'forecast':None,'reviews':reviews[::-1]}
+   item={'id':key,'name':name,'station':station,'timezone':zone,'forecast':None,'runs':[],'reviews':reviews[::-1]}
    if row:
     p=json.loads(row['points']);item['forecast']={'date':row['target_date'],'model_run':row['model_run'],'collected_at':row['collected_at'],'points':p,'sample_high':max(x['temp_f'] for x in p)}
+    runs=c.execute('SELECT * FROM forecast WHERE city=? AND target_date=? ORDER BY collected_at ASC',(key,row['target_date'])).fetchall()
+    item['runs']=[{'model_run':r['model_run'],'collected_at':r['collected_at'],'sample_high':max(x['temp_f'] for x in json.loads(r['points']))} for r in runs]
    result.append(item)
   last=c.execute('SELECT value FROM meta WHERE key=?',('last_success',)).fetchone()
  return {'cities':result,'status':dict(STATUS,last_success=STATUS['last_success'] or (last['value'] if last else None)),'server_time':now().isoformat()}
