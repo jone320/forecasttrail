@@ -92,10 +92,17 @@ export async function payload(env) {
     const forecast_days=[...grouped.values()];
     for(const d of forecast_days) d.runs.reverse();
     const forecast=forecast_days[0]?.forecast||null, runs=forecast_days[0]?.runs||[];
-    // IEM can return intraday CLI reports as well as complete reports. Do not
-    // present any as completed reviews until finality is verified per source.
-    // Keep collected climate and forecast rows intact for later verification.
-    const reviews=[];
+    // Fail closed: these exact source versions and values were manually checked
+    // as next-day YESTERDAY reports. A corrected source must be verified again.
+    const verified={
+      NYC:{date:'2026-11-04',high:72,source:BASE+'/api/1/nwstext/202611050633-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-04',high:69,source:BASE+'/api/1/nwstext/202611050634-KLOT-CDUS43-CLIMDW'},
+    };
+    const reviews=[], v=verified[id];
+    if(v) {
+      const history=await env.DB.prepare('SELECT f.*,c.high,c.source FROM forecast f JOIN climate c ON f.city=c.city AND f.target_date=c.target_date WHERE f.city=? AND f.target_date=? AND c.source=? AND c.high=? ORDER BY f.collected_at ASC LIMIT 1').bind(id,v.date,v.source,v.high).all();
+      for(const h of history.results) reviews.push({date:h.target_date,forecast_high:Math.max(...JSON.parse(h.points).map(p=>p.temp_f)),actual_high:h.high,collected_at:h.collected_at,model_run:h.model_run,actual_source:h.source});
+    }
     let observation=null; try { observation=JSON.parse(map['observation_'+id]||'null'); } catch {}
     cities.push({id,...c,forecast,runs,forecast_days,reviews,observation});
   }
