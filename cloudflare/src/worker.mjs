@@ -97,6 +97,7 @@ export async function payload(env) {
     const verified={
       NYC:{date:'2026-11-04',high:72,source:BASE+'/api/1/nwstext/202611050633-KOKX-CDUS41-CLINYC'},
       MDW:{date:'2026-11-04',high:69,source:BASE+'/api/1/nwstext/202611050634-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-04',high:75,source:BASE+'/api/1/nwstext/202611050820-KLOX-CDUS46-CLILAX'},
     };
     const reviews=[], v=verified[id];
     if(v) {
