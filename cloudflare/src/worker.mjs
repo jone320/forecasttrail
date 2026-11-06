@@ -99,8 +99,13 @@ export async function payload(env) {
       MDW:{date:'2026-11-04',high:69,source:BASE+'/api/1/nwstext/202611050634-KLOT-CDUS43-CLIMDW'},
       LAX:{date:'2026-11-04',high:75,source:BASE+'/api/1/nwstext/202611050940-KLOX-CDUS46-CLILAX'},
     };
-    const reviews=[], v=verified[id];
-    if(v) {
+    const verifiedNext={
+      NYC:{date:'2026-11-05',high:72,source:BASE+'/api/1/nwstext/202611060645-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-05',high:55,source:BASE+'/api/1/nwstext/202611060640-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-05',high:78,source:BASE+'/api/1/nwstext/202611060954-KLOX-CDUS46-CLILAX'},
+    };
+    const reviews=[];
+    for(const v of [verifiedNext[id],verified[id]].filter(Boolean)) {
       const history=await env.DB.prepare('SELECT f.*,c.high,c.source FROM forecast f JOIN climate c ON f.city=c.city AND f.target_date=c.target_date WHERE f.city=? AND f.target_date=? AND c.source=? AND c.high=? ORDER BY f.collected_at ASC LIMIT 1').bind(id,v.date,v.source,v.high).all();
       for(const h of history.results) reviews.push({date:h.target_date,forecast_high:Math.max(...JSON.parse(h.points).map(p=>p.temp_f)),actual_high:h.high,collected_at:h.collected_at,model_run:h.model_run,actual_source:h.source});
     }
