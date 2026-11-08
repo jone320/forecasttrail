@@ -112,6 +112,7 @@ export async function payload(env) {
     const verifiedFourth={
       NYC:{date:'2026-11-07',high:61,source:BASE+'/api/1/nwstext/202611080652-KOKX-CDUS41-CLINYC'},
       MDW:{date:'2026-11-07',high:52,source:BASE+'/api/1/nwstext/202611080649-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-07',high:85,source:BASE+'/api/1/nwstext/202611080940-KLOX-CDUS46-CLILAX'},
     };
     const reviews=[];
     for(const v of [verifiedFourth[id],verifiedThird[id],verifiedNext[id],verified[id]].filter(Boolean)) {
