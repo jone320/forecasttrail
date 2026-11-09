@@ -116,6 +116,8 @@ export async function payload(env) {
     };
     const verifiedFifth={
       NYC:{date:'2026-11-08',high:60,source:BASE+'/api/1/nwstext/202611090628-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-08',high:60,source:BASE+'/api/1/nwstext/202611090641-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-08',high:88,source:BASE+'/api/1/nwstext/202611090940-KLOX-CDUS46-CLILAX'},
     };
     const reviews=[];
     for(const v of [verifiedFifth[id],verifiedFourth[id],verifiedThird[id],verifiedNext[id],verified[id]].filter(Boolean)) {
