@@ -187,6 +187,7 @@ export async function payload(env) {
     const verifiedNineteenth={
       NYC:{date:'2026-11-22',high:61,source:BASE+'/api/1/nwstext/202611230620-KOKX-CDUS41-CLINYC'},
       MDW:{date:'2026-11-22',high:60,source:BASE+'/api/1/nwstext/202611230639-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-22',high:68,source:BASE+'/api/1/nwstext/202611230842-KLOX-CDUS46-CLILAX'},
     };
     const reviews=[];
     for(const v of [verifiedNineteenth[id],verifiedEighteenth[id],verifiedSeventeenth[id],verifiedSixteenth[id],verifiedFifteenth[id],verifiedFourteenth[id],verifiedThirteenth[id],verifiedTwelfth[id],verifiedEleventh[id],verifiedTenth[id],verifiedNinth[id],verifiedEighth[id],verifiedSeventh[id],verifiedSixth[id],verifiedFifth[id],verifiedFourth[id],verifiedThird[id],verifiedNext[id],verified[id]].filter(Boolean)) {
