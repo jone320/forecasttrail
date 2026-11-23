@@ -184,8 +184,12 @@ export async function payload(env) {
       MDW:{date:'2026-11-21',high:69,source:BASE+'/api/1/nwstext/202611220633-KLOT-CDUS43-CLIMDW'},
       LAX:{date:'2026-11-21',high:68,source:BASE+'/api/1/nwstext/202611220841-KLOX-CDUS46-CLILAX'},
     };
+    const verifiedNineteenth={
+      NYC:{date:'2026-11-22',high:61,source:BASE+'/api/1/nwstext/202611230620-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-22',high:60,source:BASE+'/api/1/nwstext/202611230639-KLOT-CDUS43-CLIMDW'},
+    };
     const reviews=[];
-    for(const v of [verifiedEighteenth[id],verifiedSeventeenth[id],verifiedSixteenth[id],verifiedFifteenth[id],verifiedFourteenth[id],verifiedThirteenth[id],verifiedTwelfth[id],verifiedEleventh[id],verifiedTenth[id],verifiedNinth[id],verifiedEighth[id],verifiedSeventh[id],verifiedSixth[id],verifiedFifth[id],verifiedFourth[id],verifiedThird[id],verifiedNext[id],verified[id]].filter(Boolean)) {
+    for(const v of [verifiedNineteenth[id],verifiedEighteenth[id],verifiedSeventeenth[id],verifiedSixteenth[id],verifiedFifteenth[id],verifiedFourteenth[id],verifiedThirteenth[id],verifiedTwelfth[id],verifiedEleventh[id],verifiedTenth[id],verifiedNinth[id],verifiedEighth[id],verifiedSeventh[id],verifiedSixth[id],verifiedFifth[id],verifiedFourth[id],verifiedThird[id],verifiedNext[id],verified[id]].filter(Boolean)) {
       const history=await env.DB.prepare('SELECT f.*,c.high,c.source FROM forecast f JOIN climate c ON f.city=c.city AND f.target_date=c.target_date WHERE f.city=? AND f.target_date=? AND c.source=? AND c.high=? ORDER BY f.collected_at ASC LIMIT 1').bind(id,v.date,v.source,v.high).all();
       for(const h of history.results) reviews.push({date:h.target_date,forecast_high:Math.max(...JSON.parse(h.points).map(p=>p.temp_f)),actual_high:h.high,collected_at:h.collected_at,model_run:h.model_run,actual_source:h.source});
     }
