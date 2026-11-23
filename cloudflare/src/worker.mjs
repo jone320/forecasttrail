@@ -134,8 +134,58 @@ export async function payload(env) {
       MDW:{date:'2026-11-11',high:57,source:BASE+'/api/1/nwstext/202611120714-KLOT-CDUS43-CLIMDW'},
       LAX:{date:'2026-11-11',high:83,source:BASE+'/api/1/nwstext/202611120931-KLOX-CDUS46-CLILAX'},
     };
+    const verifiedNinth={
+      NYC:{date:'2026-11-12',high:61,source:BASE+'/api/1/nwstext/202611130637-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-12',high:48,source:BASE+'/api/1/nwstext/202611130635-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-12',high:76,source:BASE+'/api/1/nwstext/202611130923-KLOX-CDUS46-CLILAX'},
+    };
+    const verifiedEleventh={
+      NYC:{date:'2026-11-14',high:46,source:BASE+'/api/1/nwstext/202611150617-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-14',high:47,source:BASE+'/api/1/nwstext/202611150633-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-14',high:70,source:BASE+'/api/1/nwstext/202611150950-KLOX-CDUS46-CLILAX'},
+    };
+    const verifiedTenth={
+      NYC:{date:'2026-11-13',high:47,source:BASE+'/api/1/nwstext/202611140625-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-13',high:44,source:BASE+'/api/1/nwstext/202611140635-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-13',high:69,source:BASE+'/api/1/nwstext/202611140943-KLOX-CDUS46-CLILAX'},
+    };
+    const verifiedTwelfth={
+      NYC:{date:'2026-11-15',high:49,source:BASE+'/api/1/nwstext/202611160706-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-15',high:52,source:BASE+'/api/1/nwstext/202611160632-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-15',high:72,source:BASE+'/api/1/nwstext/202611160934-KLOX-CDUS46-CLILAX'},
+    };
+    const verifiedThirteenth={
+      NYC:{date:'2026-11-16',high:55,source:BASE+'/api/1/nwstext/202611170621-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-16',high:54,source:BASE+'/api/1/nwstext/202611170634-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-16',high:72,source:BASE+'/api/1/nwstext/202611171011-KLOX-CDUS46-CLILAX'},
+    };
+    const verifiedFourteenth={
+      NYC:{date:'2026-11-17',high:57,source:BASE+'/api/1/nwstext/202611180649-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-17',high:57,source:BASE+'/api/1/nwstext/202611180633-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-17',high:67,source:BASE+'/api/1/nwstext/202611180841-KLOX-CDUS46-CLILAX'},
+    };
+    const verifiedFifteenth={
+      NYC:{date:'2026-11-18',high:64,source:BASE+'/api/1/nwstext/202611190646-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-18',high:62,source:BASE+'/api/1/nwstext/202611190634-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-18',high:69,source:BASE+'/api/1/nwstext/202611190842-KLOX-CDUS46-CLILAX'},
+    };
+    const verifiedSixteenth={
+      NYC:{date:'2026-11-19',high:64,source:BASE+'/api/1/nwstext/202611200627-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-19',high:66,source:BASE+'/api/1/nwstext/202611200645-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-19',high:67,source:BASE+'/api/1/nwstext/202611200844-KLOX-CDUS46-CLILAX'},
+    };
+    const verifiedSeventeenth={
+      NYC:{date:'2026-11-20',high:68,source:BASE+'/api/1/nwstext/202611210621-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-20',high:68,source:BASE+'/api/1/nwstext/202611210634-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-20',high:65,source:BASE+'/api/1/nwstext/202611210841-KLOX-CDUS46-CLILAX'},
+    };
+    const verifiedEighteenth={
+      NYC:{date:'2026-11-21',high:65,source:BASE+'/api/1/nwstext/202611220618-KOKX-CDUS41-CLINYC'},
+      MDW:{date:'2026-11-21',high:69,source:BASE+'/api/1/nwstext/202611220633-KLOT-CDUS43-CLIMDW'},
+      LAX:{date:'2026-11-21',high:68,source:BASE+'/api/1/nwstext/202611220841-KLOX-CDUS46-CLILAX'},
+    };
     const reviews=[];
-    for(const v of [verifiedEighth[id],verifiedSeventh[id],verifiedSixth[id],verifiedFifth[id],verifiedFourth[id],verifiedThird[id],verifiedNext[id],verified[id]].filter(Boolean)) {
+    for(const v of [verifiedEighteenth[id],verifiedSeventeenth[id],verifiedSixteenth[id],verifiedFifteenth[id],verifiedFourteenth[id],verifiedThirteenth[id],verifiedTwelfth[id],verifiedEleventh[id],verifiedTenth[id],verifiedNinth[id],verifiedEighth[id],verifiedSeventh[id],verifiedSixth[id],verifiedFifth[id],verifiedFourth[id],verifiedThird[id],verifiedNext[id],verified[id]].filter(Boolean)) {
       const history=await env.DB.prepare('SELECT f.*,c.high,c.source FROM forecast f JOIN climate c ON f.city=c.city AND f.target_date=c.target_date WHERE f.city=? AND f.target_date=? AND c.source=? AND c.high=? ORDER BY f.collected_at ASC LIMIT 1').bind(id,v.date,v.source,v.high).all();
       for(const h of history.results) reviews.push({date:h.target_date,forecast_high:Math.max(...JSON.parse(h.points).map(p=>p.temp_f)),actual_high:h.high,collected_at:h.collected_at,model_run:h.model_run,actual_source:h.source});
     }
